@@ -15,15 +15,26 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:
+      process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
     credentials: true,
   })
 );
 app.use(morgan("dev"));
 
-// Routes
-
+// API Routes
 app.use("/api/words", wordsRoutes);
+
+// Serve frontend in production
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.resolve();
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  // React routing fallback
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running in port: ${PORT}`);
