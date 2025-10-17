@@ -8,9 +8,15 @@ export const useTypingStore = create((set, get) => ({
   incorrectWords: 0,
   isFinished: false,
   typedWords: [],
+  startTime: null,
+  endTime: null,
 
   setInputValue: (value, words) => {
-    const { currentWordIndex, typedWords } = get();
+    const { currentWordIndex, typedWords, startTime } = get();
+
+    if (!startTime) {
+      set({ startTime: Date.now() });
+    }
 
     // Update input value
     set({ inputValue: value });
@@ -18,14 +24,19 @@ export const useTypingStore = create((set, get) => ({
     if (value.endsWith(" ")) {
       const typedWord = value.trim();
       const targetWord = words[currentWordIndex];
-
       const isCorrect = typedWord === targetWord;
+
+      const newIndex = currentWordIndex + 1;
+      const finished = newIndex >= words.length;
 
       set({
         typedWords: [...typedWords, { word: typedWord, isCorrect }],
-        currentWordIndex: currentWordIndex + 1,
+        currentWordIndex: newIndex,
         inputValue: "",
-        isFinished: currentWordIndex + 1 >= words.length,
+        correctWords: get().correctWords + (isCorrect ? 1 : 0),
+        incorrectWords: get().incorrectWords + (!isCorrect ? 1 : 0),
+        isFinished: finished,
+        endTime: finished ? Date.now() : null,
       });
     }
   },

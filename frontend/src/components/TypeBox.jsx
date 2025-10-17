@@ -12,6 +12,10 @@ const TypeBox = () => {
     isFinished,
     resetGame,
     typedWords,
+    startTime,
+    endTime,
+    correctWords,
+    incorrectWords,
   } = useTypingStore();
   const counts = [10, 25, 50, 100, 250];
 
@@ -25,6 +29,15 @@ const TypeBox = () => {
     // Focus to input after reset
     inputRef.current?.focus();
   };
+
+  const totalWords = correctWords + incorrectWords;
+  const elapsedTime =
+    ((endTime || Date.now()) - (startTime || Date.now())) / 1000 / 60;
+
+  const rawWpm = elapsedTime > 0 ? totalWords / elapsedTime : 0;
+  const accuracy = totalWords > 0 ? correctWords / totalWords : 1; // fraction
+  const effectiveWpm = Math.round(rawWpm * accuracy); // final WPM considering accuracy
+  const accuracyPercent = Math.round(accuracy * 100);
 
   return (
     <div className="flex flex-col flex-1 gap-10 justify-center items-center mt-10">
@@ -46,7 +59,9 @@ const TypeBox = () => {
             ))}
           </div>
 
-          <div className="text-base-content/30">WPM: / ACC%:</div>
+          <div className="text-base-content/30">
+            WPM: {effectiveWpm} / ACC%: {accuracyPercent}
+          </div>
         </div>
         <div className="w-90 max-h-auto md:w-2xl lg:w-3xl bg-base-300 p-6 rounded-lg shadow-md">
           <p className="text-lg md:text-xl leading-relaxed text-accent">
@@ -81,6 +96,7 @@ const TypeBox = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value, words)}
           disabled={isFinished}
+          onPaste={(e) => e.preventDefault()}
         />
         <button className="btn btn-soft btn-accent" onClick={handleRedo}>
           Redo
