@@ -83,7 +83,7 @@ const TypeBox = () => {
                         ? "text-success"
                         : "text-error"
                       : index === currentWordIndex
-                      ? "text-primary"
+                      ? "text-secondary"
                       : ""
                   }
                 `}
