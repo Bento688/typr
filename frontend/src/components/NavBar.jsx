@@ -16,7 +16,7 @@ const NavBar = () => {
 
       {/* Centered title */}
       <h1 className="text-2xl font-bold text-center absolute left-1/2 transform -translate-x-1/2">
-        typr.io
+        typr.space
       </h1>
 
       <div className="dropdown mr-10">
