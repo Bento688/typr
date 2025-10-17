@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(
   cors({
     origin:
-      process.env.NODE_ENV === "production" ? "*" : "http://localhost:5173",
-    credentials: true,
+      process.env.NODE_ENV === "development" ? "http://localhost:5173" : "*",
+    credentials: false,
   })
 );
 app.use(morgan("dev"));
