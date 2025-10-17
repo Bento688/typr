@@ -4,6 +4,7 @@ import useWordStore from "../store/useWordStore";
 
 const TypeBox = () => {
   const inputRef = useRef(null);
+  const redoRef = useRef(null);
   const { words, selectedCount, setCountAndGetWords } = useWordStore();
   const {
     inputValue,
@@ -26,18 +27,25 @@ const TypeBox = () => {
   const handleRedo = () => {
     resetGame();
 
-    // Focus to input after reset
-    inputRef.current?.focus();
+    setTimeout(() => {
+      // Focus to input after reset
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const totalWords = correctWords + incorrectWords;
   const elapsedTime =
     ((endTime || Date.now()) - (startTime || Date.now())) / 1000 / 60;
-
   const rawWpm = elapsedTime > 0 ? totalWords / elapsedTime : 0;
   const accuracy = totalWords > 0 ? correctWords / totalWords : 1; // fraction
   const effectiveWpm = Math.round(rawWpm * accuracy); // final WPM considering accuracy
   const accuracyPercent = Math.round(accuracy * 100);
+
+  // Get the target word
+  const targetWord = words[currentWordIndex] || "";
+
+  // Check if typed word is correct so far
+  const hasTypo = !targetWord.startsWith(inputValue);
 
   return (
     <div className="flex flex-col flex-1 gap-10 justify-center items-center mt-10">
@@ -92,13 +100,25 @@ const TypeBox = () => {
           ref={inputRef}
           type="text"
           placeholder="type here"
-          className="bg-base-300 input input-accent flex-1"
+          className={`input input-accent flex-1 ${
+            hasTypo ? "bg-error text-neutral-900" : "bg-base-300"
+          }`}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value, words)}
           disabled={isFinished}
           onPaste={(e) => e.preventDefault()}
+          onKeyDown={(e) => {
+            if (e.key === "Tab") {
+              e.preventDefault(); // prevent default tab behavior
+              redoRef.current?.focus(); // focus redo button
+            }
+          }}
         />
-        <button className="btn btn-soft btn-accent" onClick={handleRedo}>
+        <button
+          className="btn btn-soft btn-accent"
+          onClick={handleRedo}
+          ref={redoRef}
+        >
           Redo
         </button>
       </div>
