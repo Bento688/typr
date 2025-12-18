@@ -82,7 +82,7 @@ const ProfilePage = () => {
   }));
 
   return (
-    <div className="min-h-screen pt-20 pb-10 px-4 max-w-6xl mx-auto">
+    <div className="min-h-screen pt-5 pb-10 px-4 max-w-6xl mx-auto">
       {/* Back button */}
       <Link to="/" className="justify-between">
         <div className="mb-5 flex gap-2 items-center text-primary hover:text-base-content">
