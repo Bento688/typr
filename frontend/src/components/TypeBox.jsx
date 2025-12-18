@@ -1,11 +1,18 @@
 import { useRef, useEffect } from "react";
 import useTypingStore from "../store/useTypingStore";
 import useWordStore from "../store/useWordStore";
+import { RefreshCcw } from "lucide-react"; // Optional: Icon for restart
+import { useAuthStore } from "../store/useAuthStore";
+import { useAppStore } from "../store/useAppStore";
 
 const TypeBox = () => {
   const inputRef = useRef(null);
   const redoRef = useRef(null);
+
   const { words, selectedCount, setCountAndGetWords } = useWordStore();
+  const { authUser } = useAuthStore();
+  const { setIsLoginOpen } = useAppStore();
+
   const {
     inputValue,
     setInputValue,
@@ -18,47 +25,118 @@ const TypeBox = () => {
     correctWords,
     incorrectWords,
   } = useTypingStore();
+
   const counts = [10, 25, 50, 100, 250];
 
+  // Auto-focus input on mount or reset
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (!isFinished) {
+      inputRef.current?.focus();
+    }
+  }, [isFinished]);
 
   const handleRedo = () => {
     resetGame();
-
     setTimeout(() => {
-      // Focus to input after reset
       inputRef.current?.focus();
     }, 0);
   };
 
-  const totalWords = correctWords + incorrectWords;
-  const elapsedTime =
-    ((endTime || Date.now()) - (startTime || Date.now())) / 1000 / 60;
-  const rawWpm = elapsedTime > 0 ? totalWords / elapsedTime : 0;
-  const accuracy = totalWords > 0 ? correctWords / totalWords : 1; // fraction
-  const effectiveWpm = Math.round(rawWpm * accuracy); // final WPM considering accuracy
-  const accuracyPercent = Math.round(accuracy * 100);
+  // --- STATS CALCULATION (Standardized) ---
+  const timeMs = (endTime || Date.now()) - (startTime || Date.now());
+  const timeMins = timeMs / 60000;
 
-  // Get the target word
+  // 1. Calculate Total Characters Typed (including spaces)
+  // We sum the length of every word typed so far + 1 space for each
+  const totalChars =
+    typedWords.reduce((sum, item) => sum + item.word.length, 0) +
+    typedWords.length;
+
+  // 2. Calculate Correct Characters (for Net WPM)
+  // Only count characters from words that were typed correctly
+  const correctChars =
+    typedWords.reduce(
+      (sum, item) => (item.isCorrect ? sum + item.word.length : sum),
+      0
+    ) + correctWords; // +correctWords approximates spaces
+
+  // 3. Raw WPM = (TotalChars / 5) / Minutes
+  const rawWpm = timeMins > 0 ? Math.round(totalChars / 5 / timeMins) : 0;
+
+  // 4. Net WPM = (CorrectChars / 5) / Minutes
+  const wpm = timeMins > 0 ? Math.round(correctChars / 5 / timeMins) : 0;
+
+  // 5. Accuracy
+  const totalTypedWords = correctWords + incorrectWords;
+  const accuracyPercent =
+    totalTypedWords > 0
+      ? Math.round((correctWords / totalTypedWords) * 100)
+      : 0;
+
+  // Current Target Word Logic
   const targetWord = words[currentWordIndex] || "";
-
-  // Check if typed word is correct so far
   const hasTypo = !targetWord.startsWith(inputValue);
 
+  // --- RENDER ---
+
+  // 1. GAME OVER SCREEN
+  if (isFinished) {
+    return (
+      <div className="flex flex-col flex-1 gap-10 justify-center items-center animate-in fade-in zoom-in duration-300">
+        <div className="flex flex-col gap-6 items-center text-center bg-base-200 p-10 rounded-2xl shadow-xl w-90 md:w-2xl">
+          <h2 className="text-3xl font-bold text-primary">Test Completed!</h2>
+
+          <div className="stats stats-vertical lg:stats-horizontal shadow bg-base-100 w-full">
+            <div className="stat place-items-center">
+              <div className="stat-title">WPM</div>
+              <div className="stat-value text-primary">{wpm}</div>
+              <div className="stat-desc">Net Speed</div>
+            </div>
+
+            <div className="stat place-items-center">
+              <div className="stat-title">Raw WPM</div>
+              <div className="stat-value text-secondary">{rawWpm}</div>
+              <div className="stat-desc">Uncorrected</div>
+            </div>
+
+            <div className="stat place-items-center">
+              <div className="stat-title">Accuracy</div>
+              <div className="stat-value">{accuracyPercent}%</div>
+              <div className="stat-desc">{incorrectWords} Errors</div>
+            </div>
+
+            <div className="stat place-items-center">
+              <div className="stat-title">Type</div>
+              <div className="stat-value text-lg">English {selectedCount}</div>
+              <div className="stat-desc">Words</div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleRedo}
+            className="btn btn-accent btn-lg w-full max-w-xs mt-4"
+          >
+            <RefreshCcw className="w-5 h-5 mr-2" /> Play Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. TYPING SCREEN (Existing UI)
   return (
-    <div className="flex flex-col flex-1 gap-10 justify-center items-center mt-10">
+    <div className="flex flex-col flex-1 gap-10 justify-center items-center">
       <div className="flex flex-col gap-2">
+        {/* Top Bar: Word Count & Live Stats */}
         <div className="flex gap-4 justify-between w-90 md:w-2xl lg:w-3xl">
           <div className="flex gap-4">
             {counts.map((num) => (
               <div
                 key={num}
-                onClick={() => setCountAndGetWords(num)} // ✅ correct number
+                onClick={() => setCountAndGetWords(num)}
                 className={`cursor-pointer transition-colors duration-200 ${
                   selectedCount === num
-                    ? "text-base-content underline underline-offset-2" // ✅ highlighted
+                    ? "text-base-content underline underline-offset-2"
                     : "text-base-content/30 hover:text-base-content"
                 }`}
               >
@@ -67,60 +145,92 @@ const TypeBox = () => {
             ))}
           </div>
 
-          <div className="text-base-content/30">
-            WPM: {effectiveWpm} / ACC%: {accuracyPercent}
+          <div className="text-base-content/30 max-h-full">
+            {/* Show live stats while typing */}
+            {startTime && !isFinished && (
+              <span>
+                {wpm} WPM / {accuracyPercent}%
+              </span>
+            )}
           </div>
         </div>
-        <div className="w-90 max-h-auto md:w-2xl lg:w-3xl bg-base-300 p-6 rounded-lg shadow-md">
-          <p className="text-lg md:text-xl leading-relaxed text-accent">
+
+        {/* Word Display Box */}
+        <div
+          className="w-90 max-h-auto md:w-2xl lg:w-3xl bg-base-300 p-6 rounded-lg shadow-md cursor-text"
+          onClick={() => inputRef.current?.focus()}
+        >
+          <p className="text-lg md:text-xl leading-relaxed text-accent select-none">
             {words.map((word, index) => (
-              <span
-                key={index}
-                className={`
-                  ${
-                    typedWords[index]
-                      ? typedWords[index].isCorrect
-                        ? "text-success"
-                        : "text-error"
-                      : index === currentWordIndex
-                      ? "text-secondary"
-                      : ""
-                  }
-                `}
-              >
-                {word}{" "}
+              // 1. The outer span handles the "key"
+              <span key={index}>
+                {/* 2. The inner span applies color/underline ONLY to the word text */}
+                <span
+                  className={`
+          ${
+            typedWords[index]
+              ? typedWords[index].isCorrect
+                ? "text-success"
+                : "text-error"
+              : index === currentWordIndex
+              ? "text-secondary underline decoration-2 decoration-secondary/50 underline-offset-4"
+              : ""
+          }
+        `}
+                >
+                  {word}
+                </span>
+                {/* 3. The space is now outside the styled span, so it won't be underlined */}{" "}
               </span>
             ))}
           </p>
         </div>
       </div>
 
-      <div className="flex gap-5 w-90 md:w-2xl lg:w-3xl">
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="type here"
-          className={`input input-accent flex-1 ${
-            hasTypo ? "bg-error text-neutral-900" : "bg-base-300"
-          }`}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value, words)}
-          disabled={isFinished}
-          onPaste={(e) => e.preventDefault()}
-          onKeyDown={(e) => {
-            if (e.key === "Tab") {
-              e.preventDefault(); // prevent default tab behavior
-              redoRef.current?.focus(); // focus redo button
-            }
-          }}
-        />
-        <button
-          className="btn btn-soft btn-accent"
-          onClick={handleRedo}
-          ref={redoRef}
-        >
-          Redo
-        </button>
+      <div className="flex flex-col gap-5 items-center">
+        {/* Input & Controls */}
+        <div className="flex gap-5 w-90 md:w-2xl lg:w-3xl">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="type here"
+            className={`input input-accent flex-1 transition-colors duration-100 ${
+              hasTypo ? "bg-error/20 text-error" : "bg-base-300"
+            }`}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value, words)}
+            onPaste={(e) => e.preventDefault()}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                e.preventDefault();
+                handleRedo();
+              }
+            }}
+          />
+          <button
+            className="btn btn-soft btn-accent"
+            onClick={handleRedo}
+            ref={redoRef}
+            title="Restart Test (Tab)"
+          >
+            <RefreshCcw className="w-5 h-5" />
+          </button>
+        </div>
+        {authUser ? (
+          <p className="text-base-content/30">
+            view results from your profile!
+          </p>
+        ) : (
+          <p className="text-base-content/30">
+            <span
+              onClick={() => setIsLoginOpen(true)}
+              className="cursor-pointer duration-200 underline text-base-content/50 hover:text-accent"
+            >
+              login
+            </span>{" "}
+            to save results
+          </p>
+        )}
       </div>
     </div>
   );
