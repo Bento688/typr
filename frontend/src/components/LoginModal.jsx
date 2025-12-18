@@ -53,7 +53,11 @@ const LoginModal = ({ isOpen, onClose }) => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    // If we are in dev, go to localhost:3000. If prod, go to /api/auth/google relative path.
+    const baseURL =
+      import.meta.env.MODE === "development" ? "http://localhost:3000" : "";
+
+    window.location.href = `${baseURL}/api/auth/google`;
   };
 
   // --- RENDER: VERIFICATION VIEW ---
