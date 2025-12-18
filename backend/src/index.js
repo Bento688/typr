@@ -19,6 +19,8 @@ import resultsRoutes from "./routes/results.route.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(express.json());
 app.use(
@@ -38,8 +40,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      secure: process.env.NODE_ENV === "production", // HTTPS only in prod // [!code ++]
-      httpOnly: true, // [!code ++]
+      secure: process.env.NODE_ENV === "production", // HTTPS only in prod
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     },
   })
 );
@@ -53,6 +56,12 @@ app.use("/api/words", wordsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/results", resultsRoutes);
 
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "backend is running!",
+  });
+});
+
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
@@ -63,12 +72,6 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
   });
 }
-
-app.get("/", (req, res) => {
-  res.json({
-    status: "backend is running!",
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`Server running in port: ${PORT}`);
