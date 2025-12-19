@@ -170,7 +170,7 @@ const TypeBox = () => {
           ${
             typedWords[index]
               ? typedWords[index].isCorrect
-                ? "text-success"
+                ? "text-accent/30"
                 : "text-error"
               : index === currentWordIndex
               ? "text-secondary underline decoration-2 decoration-secondary/50 underline-offset-4"
