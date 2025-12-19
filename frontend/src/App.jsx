@@ -9,8 +9,10 @@ import { useWordStore } from "./store/useWordStore";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import UsernameSetupModal from "./components/UsernameSetupModal";
+import useDynamicFavicon from "./hooks/useDynamicFavicon";
 
 const App = () => {
+  useDynamicFavicon();
   const { getWords } = useWordStore();
   const { checkAuth } = useAuthStore();
 
