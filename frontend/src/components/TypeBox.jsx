@@ -181,7 +181,7 @@ const TypeBox = () => {
                 `}
                 >
                   {word}
-                </span>
+                </span>{" "}
               </span>
             ))}
           </p>
