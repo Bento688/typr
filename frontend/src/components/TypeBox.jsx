@@ -42,7 +42,9 @@ const TypeBox = () => {
     }, 0);
   };
 
+  // ========================================
   // --- STATS CALCULATION (Standardized) ---
+  // ========================================
   const timeMs = (endTime || Date.now()) - (startTime || Date.now());
   const timeMins = timeMs / 60000;
 
@@ -57,7 +59,7 @@ const TypeBox = () => {
   const correctChars =
     typedWords.reduce(
       (sum, item) => (item.isCorrect ? sum + item.word.length : sum),
-      0
+      0,
     ) + correctWords; // +correctWords approximates spaces
 
   // 3. Raw WPM = (TotalChars / 5) / Minutes
@@ -167,20 +169,19 @@ const TypeBox = () => {
                 {/* 2. The inner span applies color/underline ONLY to the word text */}
                 <span
                   className={`
-          ${
-            typedWords[index]
-              ? typedWords[index].isCorrect
-                ? "text-accent/30"
-                : "text-error"
-              : index === currentWordIndex
-              ? "text-secondary underline decoration-2 decoration-secondary/50 underline-offset-4"
-              : ""
-          }
-        `}
+                  ${
+                    typedWords[index]
+                      ? typedWords[index].isCorrect
+                        ? "text-accent/30"
+                        : "text-error"
+                      : index === currentWordIndex
+                        ? "text-secondary underline decoration-2 decoration-secondary/50 underline-offset-4"
+                        : ""
+                  }
+                `}
                 >
                   {word}
                 </span>
-                {/* 3. The space is now outside the styled span, so it won't be underlined */}{" "}
               </span>
             ))}
           </p>
@@ -198,8 +199,8 @@ const TypeBox = () => {
               hasTypo ? "bg-error/20 text-error" : "bg-base-300"
             }`}
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value, words)}
-            onPaste={(e) => e.preventDefault()}
+            onChange={(e) => setInputValue(e.target.value, words)} // on every change, we initiate setinputvalue
+            onPaste={(e) => e.preventDefault()} // prevent pasting
             onKeyDown={(e) => {
               if (e.key === "Tab") {
                 e.preventDefault();
@@ -216,6 +217,8 @@ const TypeBox = () => {
             <RefreshCcw className="w-5 h-5" />
           </button>
         </div>
+
+        {/* bottom caption */}
         {authUser ? (
           <p className="text-base-content/30">
             view results from your profile!

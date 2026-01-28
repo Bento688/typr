@@ -23,10 +23,10 @@ router.put("/update-username", protectRoute, updateUsername);
 
 // --- Google Auth ---
 
-// GET /api/auth/google
+// GET /api/auth/google (when user logins using google)
 router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
 
-// GET /api/auth/google/callback
+// GET /api/auth/google/callback (the redirect from google)
 router.get(
   "/google/callback",
   passport.authenticate("google", {
@@ -35,7 +35,7 @@ router.get(
   (req, res) => {
     // Successful authentication, redirect home.
     res.redirect(process.env.CLIENT_URL || "/");
-  }
+  },
 );
 
 export default router;

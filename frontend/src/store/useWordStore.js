@@ -9,6 +9,7 @@ export const useWordStore = create((set, get) => ({
 
   setSelectedLanguage: (language) => set({ selectedLanguage: language }),
 
+  // default behavior: used to get words from the backend
   getWords: async () => {
     set({ isLoadingWords: true });
     try {
@@ -23,6 +24,8 @@ export const useWordStore = create((set, get) => ({
     }
   },
 
+  // used to get the words from the backend DEPENDING on the amount of the words
+  // the user wants
   setCountAndGetWords: async (wordCount) => {
     set({ isLoadingWords: true, selectedCount: wordCount });
     try {

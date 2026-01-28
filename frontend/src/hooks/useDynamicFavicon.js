@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useThemeStore } from "../store/useThemeStore"; // Assuming you have this
 
 const useDynamicFavicon = () => {
-  const { theme } = useThemeStore();
+  const { selectedTheme } = useThemeStore();
 
   useEffect(() => {
     // 1. Helper function to get the resolved CSS color
@@ -60,7 +60,7 @@ const useDynamicFavicon = () => {
 
     // Run immediately
     updateFavicon();
-  }, [theme]); // Re-run whenever theme changes
+  }, [selectedTheme]); // Re-run whenever theme changes
 };
 
 export default useDynamicFavicon;

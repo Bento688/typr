@@ -5,12 +5,12 @@ dotenv.config();
 import path from "path";
 import cors from "cors";
 import morgan from "morgan";
-import session from "express-session"; // [!code ++]
-import passport from "passport"; // [!code ++]j
+import session from "express-session";
+import passport from "passport";
 import { connectDB } from "./middleware/db.middleware.js";
 
 // Import config to run it
-import "./config/passport.js"; // [!code ++]
+import "./config/passport.js";
 
 import wordsRoutes from "./routes/words.route.js";
 import authRoutes from "./routes/auth.route.js";
@@ -32,7 +32,7 @@ app.use(
 );
 app.use(morgan("dev"));
 
-// Session Config // [!code ++]
+// Session Config //
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// create nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -11,6 +12,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// function to send the verification email
 export const sendVerificationEmail = async (email, code) => {
   try {
     await transporter.sendMail({

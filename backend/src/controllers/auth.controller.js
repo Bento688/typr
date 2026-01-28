@@ -5,6 +5,7 @@ import { sendVerificationEmail } from "../lib/email.js";
 // POST /api/auth/signup
 export const signup = async (req, res) => {
   try {
+    // get the data from req body
     const { username, email, password } = req.body;
 
     // Check if user exists
@@ -17,7 +18,7 @@ export const signup = async (req, res) => {
 
     // Generate 6-digit Code
     const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
+      100000 + Math.random() * 900000,
     ).toString();
 
     // create new user
@@ -48,8 +49,10 @@ export const signup = async (req, res) => {
 // POST /api/auth/verify-email
 export const verifyEmail = async (req, res) => {
   try {
+    // get the user id and their inserted code from the req body
     const { userId, code } = req.body;
 
+    // find user in the DB
     const user = await User.findById(userId);
     // user not found in database
     if (!user) return res.status(400).json({ message: "User not found" });
@@ -88,11 +91,16 @@ export const verifyEmail = async (req, res) => {
 // POST /api/auth/login
 export const login = (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
+    // if error, return error
     if (err) return next(err);
+    // if user not found, return error 400
     if (!user) return res.status(400).json({ message: info.message });
 
+    // if no error, login user
     req.login(user, (err) => {
+      // if error return error
       if (err) return next(err);
+      // else, return the user object
       return res.json({ user });
     });
   })(req, res, next);
@@ -118,16 +126,18 @@ export const checkAuth = (req, res) => {
 // PUT /api/auth/update-username
 export const updateUsername = async (req, res) => {
   try {
+    // 1. check if the request is authenticated
     if (!req.isAuthenticated())
       return res.status(401).json({ message: "Not authorized" });
 
+    // 2. get the username from the request body
     const { username } = req.body;
 
-    // 1. Validate length/chars if you want
+    // 3. Validate length/chars if you want
     if (username.length < 3)
       return res.status(400).json({ message: "Username too short" });
 
-    // 2. Check Uniqueness (exclude current user)
+    // 4. Check Uniqueness (exclude current user)
     const existingUser = await User.findOne({ username });
     if (
       existingUser &&
@@ -136,7 +146,7 @@ export const updateUsername = async (req, res) => {
       return res.status(400).json({ message: "Username already taken" });
     }
 
-    // 3. Update User
+    // 5. Update User
     const user = await User.findById(req.user._id);
     user.username = username;
     user.needsUsernameChange = false; // [!code ++] Turn off the flag
