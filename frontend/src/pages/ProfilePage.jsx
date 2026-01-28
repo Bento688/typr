@@ -238,7 +238,9 @@ const ProfilePage = () => {
                   </td>
                   <td className="opacity-70">{result.rawWpm}</td>
                   <td>
-                    <div className="badge badge-outline">
+                    <div
+                      className={`badge badge-outline ${result.accuracy >= 90 ? "badge-success" : result.accuracy >= 85 ? "badge-warning" : "badge-error"}`}
+                    >
                       {result.accuracy}%
                     </div>
                   </td>
