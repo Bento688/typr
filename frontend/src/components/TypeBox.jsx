@@ -121,6 +121,9 @@ const TypeBox = () => {
             <RefreshCcw className="w-5 h-5 mr-2" /> Play Again
           </button>
         </div>
+        <p className="text-base-content/30">
+          <strong>Tab + enter</strong> to play again!
+        </p>
       </div>
     );
   }

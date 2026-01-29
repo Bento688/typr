@@ -19,7 +19,42 @@ const NavBar = () => {
 
   return (
     <nav className="w-full bg-base text-base-content px-4 py-10 flex items-center justify-between relative">
-      <div className="flex-1 flex justify-start"></div>
+      {/* Left side */}
+      <div className="flex-1 flex justify-start">
+        <div className="dropdown dropdown-end md:hidden">
+          <div tabIndex={0} role="button" className="btn btn-ghost m-1">
+            Themes
+            <svg
+              width="12px"
+              height="12px"
+              className="inline-block h-2 w-2 fill-current opacity-60 ml-1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 2048 2048"
+            >
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
+          </div>
+          <ul
+            tabIndex="-1"
+            className="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl max-h-64 overflow-y-auto"
+          >
+            {DAISYUI_THEMES.map((theme) => (
+              <li key={theme}>
+                <button
+                  className={`w-full btn btn-sm btn-block btn-ghost justify-start ${
+                    selectedTheme === theme ? "underline" : ""
+                  }`}
+                  onMouseEnter={() => setHoverTheme(theme)}
+                  onMouseLeave={() => setHoverTheme(null)}
+                  onClick={() => setTheme(theme)}
+                >
+                  {theme}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       {/* Centered title */}
       <h1 className="text-2xl font-bold text-center absolute left-1/2 transform -translate-x-1/2">
@@ -29,7 +64,7 @@ const NavBar = () => {
       {/* Right Side: Themes + Login */}
       <div className="flex-1 flex items-center justify-end mr-6">
         {/* Theme Dropdown */}
-        <div className="dropdown dropdown-end">
+        <div className="dropdown dropdown-end hidden md:inline">
           <div tabIndex={0} role="button" className="btn btn-ghost m-1">
             Themes
             <svg
