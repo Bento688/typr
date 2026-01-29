@@ -21,7 +21,7 @@ const NavBar = () => {
     <nav className="w-full bg-base text-base-content px-4 py-10 flex items-center justify-between relative">
       {/* Left side */}
       <div className="flex-1 flex justify-start">
-        <div className="dropdown dropdown-end md:hidden">
+        <div className="dropdown dropdown-start md:hidden">
           <div tabIndex={0} role="button" className="btn btn-ghost m-1">
             Themes
             <svg
@@ -36,7 +36,7 @@ const NavBar = () => {
           </div>
           <ul
             tabIndex="-1"
-            className="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl max-h-64 overflow-y-auto"
+            className="dropdown-content bg-base-300 rounded-box z-1 w-30 p-2 shadow-2xl max-h-64 overflow-y-auto"
           >
             {DAISYUI_THEMES.map((theme) => (
               <li key={theme}>
@@ -64,7 +64,7 @@ const NavBar = () => {
       {/* Right Side: Themes + Login */}
       <div className="flex-1 flex items-center justify-end mr-6">
         {/* Theme Dropdown */}
-        <div className="dropdown dropdown-end hidden md:inline">
+        <div className="dropdown dropdown-end w-30 hidden md:inline">
           <div tabIndex={0} role="button" className="btn btn-ghost m-1">
             Themes
             <svg
@@ -79,7 +79,7 @@ const NavBar = () => {
           </div>
           <ul
             tabIndex="-1"
-            className="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl max-h-64 overflow-y-auto"
+            className="dropdown-content bg-base-300 rounded-box z-1 w-30 p-2 shadow-2xl max-h-64 overflow-y-auto"
           >
             {DAISYUI_THEMES.map((theme) => (
               <li key={theme}>
