@@ -8,6 +8,7 @@ import morgan from "morgan";
 import session from "express-session";
 import passport from "passport";
 import { connectDB } from "./middleware/db.middleware.js";
+import limiter from "./middleware/ratelimit.middleware.js";
 
 // Import config to run it
 import "./config/passport.js";
@@ -23,13 +24,14 @@ app.set("trust proxy", 1);
 
 // Middleware
 app.use(express.json());
+const allowedOrigins = [process.env.DEV_CLIENT_URL, process.env.CLIENT_URL];
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "development" ? "http://localhost:5173" : true,
+    origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
+app.use(limiter); // rate limiter
 app.use(morgan("dev"));
 
 // Session Config //
@@ -44,7 +46,7 @@ app.use(
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     },
-  })
+  }),
 );
 
 // Passport middlewares
