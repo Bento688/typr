@@ -3,8 +3,6 @@ import { axiosInstance } from "../lib/axios.js";
 
 export const useWordStore = create((set, get) => ({
   words: [],
-  selectedCount: 25,
-  isLoadingWords: false,
   selectedLanguage: "english",
 
   setSelectedLanguage: (language) => set({ selectedLanguage: language }),
