@@ -9,6 +9,7 @@ import session from "express-session";
 import passport from "passport";
 import { connectDB } from "./middleware/db.middleware.js";
 import limiter from "./middleware/ratelimit.middleware.js";
+import { botMiddleware } from "./middleware/botBlocker.middleware.js";
 
 // Import config to run it
 import "./config/passport.js";
@@ -32,7 +33,9 @@ app.use(
   }),
 );
 app.use(limiter); // rate limiter
-app.use(morgan("dev"));
+app.use(botMiddleware); // protect route from bots
+
+app.use(morgan("dev")); // for logging
 
 // Session Config //
 app.use(
