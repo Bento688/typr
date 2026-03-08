@@ -6,12 +6,12 @@ import path from "path";
 import cors from "cors";
 import morgan from "morgan";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import passport from "passport";
 import { connectDB } from "./middleware/db.middleware.js";
 import limiter from "./middleware/ratelimit.middleware.js";
 import { botMiddleware } from "./middleware/botBlocker.middleware.js";
 
-// Import config to run it
 import "./config/passport.js";
 
 import wordsRoutes from "./routes/words.route.js";
@@ -43,9 +43,13 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: "sessions",
+    }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      secure: process.env.NODE_ENV === "production", // HTTPS only in prod
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
     },

@@ -30,7 +30,7 @@ userSchema.pre("save", async function () {
 
   try {
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = bcrypt.hash(this.password, salt);
     // 3. No need to call next(), just finish the function
   } catch (err) {
     throw err; // 4. Throw error instead of next(err)
