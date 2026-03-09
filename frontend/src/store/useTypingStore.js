@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { useWordStore } from "./useWordStore";
-import { useAuthStore } from "./useAuthStore"; // [!code ++]
-import { axiosInstance } from "../lib/axios"; // [!code ++]
+import { useAuthStore } from "./useAuthStore";
+import { axiosInstance } from "../lib/axios";
 
 export const useTypingStore = create((set, get) => ({
   inputValue: "",

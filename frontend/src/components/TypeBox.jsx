@@ -1,7 +1,7 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import useTypingStore from "../store/useTypingStore";
 import useWordStore from "../store/useWordStore";
-import { RefreshCcw } from "lucide-react"; // Optional: Icon for restart
+import { RefreshCcw } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useAppStore } from "../store/useAppStore";
 
@@ -26,14 +26,27 @@ const TypeBox = () => {
     incorrectWords,
   } = useTypingStore();
 
+  const [now, setNow] = useState(Date.now());
+
   const counts = [10, 25, 50, 100, 250];
 
-  // Auto-focus input on mount or reset
   useEffect(() => {
     if (!isFinished) {
       inputRef.current?.focus();
     }
   }, [isFinished]);
+
+  useEffect(() => {
+    let interval;
+
+    if (startTime && !isFinished) {
+      interval = setInterval(() => {
+        setNow(Date.now());
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [startTime, isFinished]);
 
   const handleRedo = () => {
     resetGame();
@@ -45,7 +58,7 @@ const TypeBox = () => {
   // ========================================
   // --- STATS CALCULATION (Standardized) ---
   // ========================================
-  const timeMs = (endTime || Date.now()) - (startTime || Date.now());
+  const timeMs = (endTime || now) - (startTime || now);
   const timeMins = timeMs / 60000;
 
   // 1. Calculate Total Characters Typed (including spaces)
@@ -60,7 +73,7 @@ const TypeBox = () => {
     typedWords.reduce(
       (sum, item) => (item.isCorrect ? sum + item.word.length : sum),
       0,
-    ) + correctWords; // +correctWords approximates spaces
+    ) + correctWords;
 
   // 3. Raw WPM = (TotalChars / 5) / Minutes
   const rawWpm = timeMins > 0 ? Math.round(totalChars / 5 / timeMins) : 0;
@@ -81,7 +94,7 @@ const TypeBox = () => {
 
   // --- RENDER ---
 
-  // 1. GAME OVER SCREEN
+  // ===  GAME OVER SCREEN ===
   if (isFinished) {
     return (
       <div className="flex flex-col flex-1 gap-10 justify-center items-center animate-in fade-in zoom-in duration-300">
@@ -128,7 +141,7 @@ const TypeBox = () => {
     );
   }
 
-  // 2. TYPING SCREEN (Existing UI)
+  // 2. TYPING SCREEN
   return (
     <div className="flex flex-col flex-1 gap-10 justify-center items-center">
       <div className="flex flex-col gap-2">
