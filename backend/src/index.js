@@ -6,7 +6,9 @@ import path from "path";
 import cors from "cors";
 import morgan from "morgan";
 import session from "express-session";
+
 import MongoStore from "connect-mongo";
+
 import passport from "passport";
 import { connectDB } from "./middleware/db.middleware.js";
 import limiter from "./middleware/ratelimit.middleware.js";
@@ -44,7 +46,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
+      clientPromise: connectDB(),
       collectionName: "sessions",
     }),
     cookie: {
@@ -84,5 +86,4 @@ if (process.env.NODE_ENV === "production") {
 
 app.listen(PORT, () => {
   console.log(`Server running in port: ${PORT}`);
-  connectDB();
 });
